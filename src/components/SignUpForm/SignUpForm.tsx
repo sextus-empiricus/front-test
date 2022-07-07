@@ -1,11 +1,6 @@
 import React, {ChangeEvent, useState} from 'react';
 
-
-interface Props {
-
-}
-
-const SignUpForm = (props: Props) => {
+const SignUpForm = () => {
     const [inputNameValue, setInputNameValue] = useState<string>('');
     const [inputImageValue, setInputImageValue] = useState<string>('');
 
@@ -26,7 +21,7 @@ const SignUpForm = (props: Props) => {
     return (
         <div>
             <form onSubmit={submitHandler}>
-                <label>User name:
+                <label>Username:
                     <input name="username" type="text" value={inputNameValue} onChange={inputOnChangeHandler}/>
                 </label>
                 <label>Image:
