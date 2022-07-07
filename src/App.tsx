@@ -1,5 +1,9 @@
+import {SignUpForm} from './components/SignUpForm/SignUpForm';
+
 const App = () => {
-  return <div>Szalom Olam</div>;
+  return (
+      <SignUpForm/>
+  )
 };
 
 export default App;
