@@ -1,5 +1,6 @@
-import React, { ChangeEvent, useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ethers } from "ethers";
+import Avatar from "boring-avatars";
 import { client, getProfiles } from "../../queries";
 import { contractAddress } from "../../consts/index";
 import RootContract from "../../abi/Root.json";
@@ -13,18 +14,10 @@ interface Profile {
 
 const SignUpForm = () => {
   const [inputNameValue, setInputNameValue] = useState<string>("");
-  const [inputImageValue, setInputImageValue] = useState<string>("");
+  const [profileImage, setProfileImage] = useState<string>("");
   const [profiles, setProfiles] = useState<Profile[] | null>(null);
   const [user, setUser] = useState(null);
-
-  const inputOnChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.name === "username") {
-      setInputNameValue(e.target.value);
-    }
-    if (e.target.name === "image") {
-      setInputImageValue(e.target.value);
-    }
-  };
+  const avatarRef = useRef();
 
   const submitHandler = (e: any) => {
     e.preventDefault();
@@ -47,7 +40,7 @@ const SignUpForm = () => {
     const contract = new ethers.Contract(contractAddress, RootContract, signer);
 
     try {
-      const tx = await contract.mintProfileNFT(inputNameValue, inputImageValue);
+      const tx = await contract.mintProfileNFT(inputNameValue, profileImage);
       await tx.wait();
     } catch (error) {
       console.error({ error });
@@ -69,12 +62,33 @@ const SignUpForm = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    if (avatarRef.current) {
+      /* @ts-ignore */
+      const svgNode = avatarRef.current.innerHTML;
+      const svgStart = svgNode.indexOf("<svg");
+      const svgEnd = svgNode.indexOf("</svg>") + 6;
+      const svgResult = svgNode.substring(svgStart, svgEnd).toString();
+      const base64 = btoa(unescape(encodeURIComponent(svgResult)));
+      setProfileImage(`data:image/svg+xml;base64,${base64}`);
+    }
+  }, [inputNameValue]);
+
   if (!user) {
     return <button onClick={connect}>Connect</button>;
   }
 
   return (
     <div>
+      {/* @ts-ignore */}
+      <div ref={avatarRef}>
+        <Avatar
+          size={40}
+          name={inputNameValue}
+          variant="beam"
+          colors={["#ffe30b", "#083e48", "#ffb53d", "#98f421", "#ff0000"]}
+        />
+      </div>
       <form onSubmit={submitHandler}>
         <label>
           Username:
@@ -82,16 +96,7 @@ const SignUpForm = () => {
             name="username"
             type="text"
             value={inputNameValue}
-            onChange={inputOnChangeHandler}
-          />
-        </label>
-        <label>
-          Image:
-          <input
-            name="image"
-            type="text"
-            value={inputImageValue}
-            onChange={inputOnChangeHandler}
+            onChange={(e) => setInputNameValue(e.target.value)}
           />
         </label>
         <button>submit</button>
