@@ -4,9 +4,17 @@ import { client, getProfiles } from "../../queries";
 import { contractAddress } from "../../consts/index";
 import RootContract from "../../abi/Root.json";
 
+interface Profile {
+  memberData_profilePicture: string;
+  memberData_username: string;
+  profileId: string;
+  __typename: string;
+}
+
 const SignUpForm = () => {
   const [inputNameValue, setInputNameValue] = useState<string>("");
   const [inputImageValue, setInputImageValue] = useState<string>("");
+  const [profiles, setProfiles] = useState<Profile[] | null>(null);
   const [user, setUser] = useState(null);
 
   const inputOnChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -49,14 +57,16 @@ const SignUpForm = () => {
   const fetchProfiles = async () => {
     try {
       const response = await client.query(getProfiles).toPromise();
-      console.log(response);
+      setProfiles(response.data.profileNFTMinteds);
     } catch (error) {
       console.error({ error });
     }
   };
 
   useEffect(() => {
-    fetchProfiles();
+    (async () => {
+      await fetchProfiles();
+    })();
   }, []);
 
   if (!user) {
@@ -86,6 +96,16 @@ const SignUpForm = () => {
         </label>
         <button>submit</button>
       </form>
+      {profiles &&
+        profiles.map((el: Profile, i: number) => (
+          <p key={i}>
+            id:
+            <span style={{ fontWeight: "bold" }}>{el.profileId}</span>
+            <br />
+            username:
+            <span style={{ fontWeight: "bold" }}>{el.memberData_username}</span>
+          </p>
+        ))}
     </div>
   );
 };
