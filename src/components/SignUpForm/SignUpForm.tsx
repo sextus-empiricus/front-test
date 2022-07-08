@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ethers } from "ethers";
 import Avatar from "boring-avatars";
-import { client, getProfiles } from "../../queries";
+import { client, getUserProfiles } from "../../queries";
 import { contractAddress } from "../../consts/index";
 import RootContract from "../../abi/Root.json";
 
@@ -47,20 +47,24 @@ const SignUpForm = () => {
     }
   };
 
-  const fetchProfiles = async () => {
-    try {
-      const response = await client.query(getProfiles).toPromise();
-      setProfiles(response.data.profileNFTMinteds);
-    } catch (error) {
-      console.error({ error });
-    }
-  };
-
   useEffect(() => {
-    (async () => {
-      await fetchProfiles();
-    })();
-  }, []);
+    const fetchProfiles = async () => {
+      try {
+        const response = await client
+          .query(getUserProfiles, { address: user })
+          .toPromise();
+        setProfiles(response.data.profileNFTMinteds);
+        console.log(response);
+      } catch (error) {
+        console.error({ error });
+      }
+    };
+    if (user) {
+      (async () => {
+        await fetchProfiles();
+      })();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (avatarRef.current) {
@@ -102,13 +106,21 @@ const SignUpForm = () => {
         <button>submit</button>
       </form>
       {profiles &&
-        profiles.map((el: Profile, i: number) => (
-          <p key={i}>
+        profiles.map((element: Profile, index: number) => (
+          <p key={index}>
+            {element.memberData_profilePicture.includes("base64") && (
+              <img
+                src={element.memberData_profilePicture}
+                alt={element.memberData_username}
+              />
+            )}
             id:
-            <span style={{ fontWeight: "bold" }}>{el.profileId}</span>
+            <span style={{ fontWeight: "bold" }}>{element.profileId}</span>
             <br />
             username:
-            <span style={{ fontWeight: "bold" }}>{el.memberData_username}</span>
+            <span style={{ fontWeight: "bold" }}>
+              {element.memberData_username}
+            </span>
           </p>
         ))}
     </div>
