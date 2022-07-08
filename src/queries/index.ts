@@ -22,3 +22,9 @@ export const getUserProfiles = `query ProfileNFTMinted($address: String! ) {
     memberData_profilePicture
   }
 }`;
+
+export const checkUsername = `query ProfileNFTMinted($username: String! ) {
+  profileNFTMinteds (where: { memberData_username: $username }) {
+    memberData_username
+  }
+}`;

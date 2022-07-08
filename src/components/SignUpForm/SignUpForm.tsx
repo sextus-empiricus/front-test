@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ethers } from "ethers";
 import Avatar from "boring-avatars";
-import { client, getUserProfiles } from "../../queries";
+import { client, getUserProfiles, checkUsername } from "../../queries";
 import { contractAddress } from "../../consts/index";
 import RootContract from "../../abi/Root.json";
 
@@ -17,6 +17,8 @@ const SignUpForm = () => {
   const [profileImage, setProfileImage] = useState<string>("");
   const [profiles, setProfiles] = useState<Profile[] | null>(null);
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const avatarRef = useRef();
 
   const submitHandler = (e: any) => {
@@ -33,13 +35,25 @@ const SignUpForm = () => {
   };
 
   const profileCreate = async () => {
-    /* @ts-ignore */
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-
-    const contract = new ethers.Contract(contractAddress, RootContract, signer);
-
+    setErrorMessage("");
     try {
+      const response = await client
+        .query(checkUsername, { username: inputNameValue })
+        .toPromise();
+      setIsLoading(false);
+      if (response.data.profileNFTMinteds.length) {
+        setErrorMessage("Username already exists!");
+        return;
+      }
+      /* @ts-ignore */
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+
+      const contract = new ethers.Contract(
+        contractAddress,
+        RootContract,
+        signer
+      );
       const tx = await contract.mintProfileNFT(inputNameValue, profileImage);
       await tx.wait();
     } catch (error) {
@@ -49,14 +63,16 @@ const SignUpForm = () => {
 
   useEffect(() => {
     const fetchProfiles = async () => {
+      setIsLoading(true);
       try {
         const response = await client
           .query(getUserProfiles, { address: user })
           .toPromise();
         setProfiles(response.data.profileNFTMinteds);
-        console.log(response);
+        setIsLoading(false);
       } catch (error) {
         console.error({ error });
+        setIsLoading(false);
       }
     };
     if (user) {
@@ -94,6 +110,7 @@ const SignUpForm = () => {
         />
       </div>
       <form onSubmit={submitHandler}>
+        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
         <label>
           Username:
           <input
@@ -105,7 +122,9 @@ const SignUpForm = () => {
         </label>
         <button>submit</button>
       </form>
-      {profiles &&
+      {isLoading ? (
+        <div>Loading</div>
+      ) : profiles ? (
         profiles.map((element: Profile, index: number) => (
           <p key={index}>
             {element.memberData_profilePicture.includes("base64") && (
@@ -122,7 +141,10 @@ const SignUpForm = () => {
               {element.memberData_username}
             </span>
           </p>
-        ))}
+        ))
+      ) : (
+        <div>You don't have any profile please create one</div>
+      )}
     </div>
   );
 };
