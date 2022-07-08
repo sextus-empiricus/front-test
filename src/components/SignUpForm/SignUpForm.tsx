@@ -1,9 +1,13 @@
 import React, { ChangeEvent, useState, useEffect } from "react";
+import { ethers } from "ethers";
 import { client, getProfiles } from "../../queries";
+import { contractAddress } from "../../consts/index";
+import RootContract from "../../abi/Root.json";
 
 const SignUpForm = () => {
   const [inputNameValue, setInputNameValue] = useState<string>("");
   const [inputImageValue, setInputImageValue] = useState<string>("");
+  const [user, setUser] = useState(null);
 
   const inputOnChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.name === "username") {
@@ -16,7 +20,30 @@ const SignUpForm = () => {
 
   const submitHandler = (e: any) => {
     e.preventDefault();
-    console.log({ inputNameValue, inputImageValue });
+    profileCreate();
+  };
+
+  const connect = async () => {
+    /* @ts-ignore */
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
+    setUser(accounts[0]);
+  };
+
+  const profileCreate = async () => {
+    /* @ts-ignore */
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+
+    const contract = new ethers.Contract(contractAddress, RootContract, signer);
+
+    try {
+      const tx = await contract.mintProfileNFT(inputNameValue, inputImageValue);
+      await tx.wait();
+    } catch (error) {
+      console.error({ error });
+    }
   };
 
   const fetchProfiles = async () => {
@@ -31,6 +58,10 @@ const SignUpForm = () => {
   useEffect(() => {
     fetchProfiles();
   }, []);
+
+  if (!user) {
+    return <button onClick={connect}>Connect</button>;
+  }
 
   return (
     <div>
