@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
+import { encode } from "base-64";
 import { ethers } from "ethers";
 import Avatar from "boring-avatars";
-import { client, getProfiles } from "../../queries";
+import { client, getUserProfiles, checkUsername } from "../../queries";
 import { contractAddress } from "../../consts/index";
 import RootContract from "../../abi/Root.json";
 
@@ -17,6 +18,8 @@ const SignUpForm = () => {
   const [profileImage, setProfileImage] = useState<string>("");
   const [profiles, setProfiles] = useState<Profile[] | null>(null);
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const avatarRef = useRef();
 
   const submitHandler = (e: any) => {
@@ -33,13 +36,25 @@ const SignUpForm = () => {
   };
 
   const profileCreate = async () => {
-    /* @ts-ignore */
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-
-    const contract = new ethers.Contract(contractAddress, RootContract, signer);
-
+    setErrorMessage("");
     try {
+      const response = await client
+        .query(checkUsername, { username: inputNameValue })
+        .toPromise();
+      setIsLoading(false);
+      if (response.data.profileNFTMinteds.length) {
+        setErrorMessage("Username already exists!");
+        return;
+      }
+      /* @ts-ignore */
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+
+      const contract = new ethers.Contract(
+        contractAddress,
+        RootContract,
+        signer
+      );
       const tx = await contract.mintProfileNFT(inputNameValue, profileImage);
       await tx.wait();
     } catch (error) {
@@ -47,20 +62,26 @@ const SignUpForm = () => {
     }
   };
 
-  const fetchProfiles = async () => {
-    try {
-      const response = await client.query(getProfiles).toPromise();
-      setProfiles(response.data.profileNFTMinteds);
-    } catch (error) {
-      console.error({ error });
-    }
-  };
-
   useEffect(() => {
-    (async () => {
-      await fetchProfiles();
-    })();
-  }, []);
+    const fetchProfiles = async () => {
+      setIsLoading(true);
+      try {
+        const response = await client
+          .query(getUserProfiles, { address: user })
+          .toPromise();
+        setProfiles(response.data.profileNFTMinteds);
+        setIsLoading(false);
+      } catch (error) {
+        console.error({ error });
+        setIsLoading(false);
+      }
+    };
+    if (user) {
+      (async () => {
+        await fetchProfiles();
+      })();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (avatarRef.current) {
@@ -69,8 +90,8 @@ const SignUpForm = () => {
       const svgStart = svgNode.indexOf("<svg");
       const svgEnd = svgNode.indexOf("</svg>") + 6;
       const svgResult = svgNode.substring(svgStart, svgEnd).toString();
-      const base64 = btoa(unescape(encodeURIComponent(svgResult)));
-      setProfileImage(`data:image/svg+xml;base64,${base64}`);
+      const encoded = encode(svgResult);
+      setProfileImage(`data:image/svg+xml;base64,${encoded}`);
     }
   }, [inputNameValue]);
 
@@ -90,6 +111,7 @@ const SignUpForm = () => {
         />
       </div>
       <form onSubmit={submitHandler}>
+        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
         <label>
           Username:
           <input
@@ -101,16 +123,29 @@ const SignUpForm = () => {
         </label>
         <button>submit</button>
       </form>
-      {profiles &&
-        profiles.map((el: Profile, i: number) => (
-          <p key={i}>
+      {isLoading ? (
+        <div>Loading</div>
+      ) : profiles ? (
+        profiles.map((element: Profile, index: number) => (
+          <p key={index}>
+            {element.memberData_profilePicture.includes("base64") && (
+              <img
+                src={element.memberData_profilePicture}
+                alt={element.memberData_username}
+              />
+            )}
             id:
-            <span style={{ fontWeight: "bold" }}>{el.profileId}</span>
+            <span style={{ fontWeight: "bold" }}>{element.profileId}</span>
             <br />
             username:
-            <span style={{ fontWeight: "bold" }}>{el.memberData_username}</span>
+            <span style={{ fontWeight: "bold" }}>
+              {element.memberData_username}
+            </span>
           </p>
-        ))}
+        ))
+      ) : (
+        <div>You don't have any profile please create one</div>
+      )}
     </div>
   );
 };
