@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { encode } from "base-64";
 import { ethers } from "ethers";
 import Avatar from "boring-avatars";
 import { client, getUserProfiles, checkUsername } from "../../queries";
 import { contractAddress } from "../../consts/index";
 import RootContract from "../../abi/Root.json";
+import { RootContext } from "../../context";
 
 interface Profile {
   memberData_profilePicture: string;
@@ -20,6 +21,8 @@ const SignUpForm = () => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const { setSelectedUser } = useContext(RootContext);
   const avatarRef = useRef();
 
   const submitHandler = (e: any) => {
@@ -127,21 +130,33 @@ const SignUpForm = () => {
         <div>Loading</div>
       ) : profiles ? (
         profiles.map((element: Profile, index: number) => (
-          <p key={index}>
-            {element.memberData_profilePicture.includes("base64") && (
-              <img
-                src={element.memberData_profilePicture}
-                alt={element.memberData_username}
-              />
-            )}
-            id:
-            <span style={{ fontWeight: "bold" }}>{element.profileId}</span>
-            <br />
-            username:
-            <span style={{ fontWeight: "bold" }}>
-              {element.memberData_username}
-            </span>
-          </p>
+          <div
+            key={index}
+            style={{
+              border: "solid 2px black",
+              cursor: "pointer",
+              margin: "10px 0",
+              width: "400px",
+              padding: "1em",
+            }}
+            onClick={() => setSelectedUser(element.profileId)}
+          >
+            <p>
+              {element.memberData_profilePicture.includes("base64") && (
+                <img
+                  src={element.memberData_profilePicture}
+                  alt={element.memberData_username}
+                />
+              )}
+              id:
+              <span style={{ fontWeight: "bold" }}>{element.profileId}</span>
+              <br />
+              username:
+              <span style={{ fontWeight: "bold" }}>
+                {element.memberData_username}
+              </span>
+            </p>
+          </div>
         ))
       ) : (
         <div>You don't have any profile please create one</div>
