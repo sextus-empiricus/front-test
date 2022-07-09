@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { encode } from "base-64";
 import { ethers } from "ethers";
 import Avatar from "boring-avatars";
 import { client, getUserProfiles, checkUsername } from "../../queries";
@@ -89,8 +90,8 @@ const SignUpForm = () => {
       const svgStart = svgNode.indexOf("<svg");
       const svgEnd = svgNode.indexOf("</svg>") + 6;
       const svgResult = svgNode.substring(svgStart, svgEnd).toString();
-      const base64 = btoa(unescape(encodeURIComponent(svgResult)));
-      setProfileImage(`data:image/svg+xml;base64,${base64}`);
+      const encoded = encode(svgResult);
+      setProfileImage(`data:image/svg+xml;base64,${encoded}`);
     }
   }, [inputNameValue]);
 
