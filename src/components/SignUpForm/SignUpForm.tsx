@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { encode } from "base-64";
-import { ethers } from "ethers";
 import Avatar from "boring-avatars";
 import { client, getUserProfiles, checkUsername } from "../../queries";
-import { contractAddress } from "../../consts/index";
-import RootContract from "../../abi/Root.json";
 import { RootContext } from "../../context";
 
 interface Profile {
@@ -18,24 +15,16 @@ const SignUpForm = () => {
   const [inputNameValue, setInputNameValue] = useState<string>("");
   const [profileImage, setProfileImage] = useState<string>("");
   const [profiles, setProfiles] = useState<Profile[] | null>(null);
-  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { setSelectedUser } = useContext(RootContext);
+  const { userAddress, rootContract, setSelectedUser } =
+    useContext(RootContext);
   const avatarRef = useRef();
 
   const submitHandler = (e: any) => {
     e.preventDefault();
     profileCreate();
-  };
-
-  const connect = async () => {
-    /* @ts-ignore */
-    const accounts = await window.ethereum.request({
-      method: "eth_requestAccounts",
-    });
-    setUser(accounts[0]);
   };
 
   const profileCreate = async () => {
@@ -49,16 +38,11 @@ const SignUpForm = () => {
         setErrorMessage("Username already exists!");
         return;
       }
-      /* @ts-ignore */
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
 
-      const contract = new ethers.Contract(
-        contractAddress,
-        RootContract,
-        signer
+      const tx = await rootContract.mintProfileNFT(
+        inputNameValue,
+        profileImage
       );
-      const tx = await contract.mintProfileNFT(inputNameValue, profileImage);
       await tx.wait();
     } catch (error) {
       console.error({ error });
@@ -70,7 +54,7 @@ const SignUpForm = () => {
       setIsLoading(true);
       try {
         const response = await client
-          .query(getUserProfiles, { address: user })
+          .query(getUserProfiles, { address: userAddress })
           .toPromise();
         setProfiles(response.data.profileNFTMinteds);
         setIsLoading(false);
@@ -79,12 +63,12 @@ const SignUpForm = () => {
         setIsLoading(false);
       }
     };
-    if (user) {
+    if (userAddress) {
       (async () => {
         await fetchProfiles();
       })();
     }
-  }, [user]);
+  }, [userAddress]);
 
   useEffect(() => {
     if (avatarRef.current) {
@@ -98,8 +82,8 @@ const SignUpForm = () => {
     }
   }, [inputNameValue]);
 
-  if (!user) {
-    return <button onClick={connect}>Connect</button>;
+  if (!userAddress) {
+    return <p>Please Connect Wallet to login</p>;
   }
 
   return (
