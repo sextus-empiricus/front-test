@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from "react";
 import moment from "moment";
 import { client, getPosts } from "../../queries";
 import { RootContext } from "../../context";
-import { Link } from "react-router-dom";
 
 interface Post {
   postAdded_authorId: string;
@@ -92,30 +91,26 @@ const PostsWall = () => {
         <div>Loading</div>
       ) : posts ? (
         posts.map((element: Post, index: number) => (
-          <Link to={`/`}>
-            <div
-              key={index}
-              style={{
-                border: "solid black 2px",
-                width: "400px",
-                padding: "4px",
-                margin: "4px",
-              }}
-            >
-              <h4 style={{ fontWeight: "bold" }}>{element.postAdded_title}</h4>
-              <p>{element.postAdded_content}</p>
-              <br />
-              username:
-              <span style={{ fontWeight: "bold", margin: "4px" }}>
-                {element.postAdded_authorId}
-              </span>
-              <span>
-                {moment
-                  .unix(Number(element.postAdded_date))
-                  .format("DD/MM/YYYY")}
-              </span>
-            </div>
-          </Link>
+          <div
+            key={index}
+            style={{
+              border: "solid black 2px",
+              width: "400px",
+              padding: "4px",
+              margin: "4px",
+            }}
+          >
+            <h4 style={{ fontWeight: "bold" }}>{element.postAdded_title}</h4>
+            <p>{element.postAdded_content}</p>
+            <br />
+            username:
+            <span style={{ fontWeight: "bold", margin: "4px" }}>
+              {element.postAdded_authorId}
+            </span>
+            <span>
+              {moment.unix(Number(element.postAdded_date)).format("DD/MM/YYYY")}
+            </span>
+          </div>
         ))
       ) : (
         <div>There are no posts to show</div>
