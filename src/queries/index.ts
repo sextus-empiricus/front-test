@@ -28,3 +28,14 @@ export const checkUsername = `query ProfileNFTMinted($username: String! ) {
     memberData_username
   }
 }`;
+
+export const getPosts = `query PostAdded {
+  postAddeds {
+    postAdded_title
+    postAdded_content
+    postAdded_authorId
+    postAdded_picture
+    postAdded_video
+    postAdded_date
+  }
+}`;
