@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { Link } from "react-router-dom";
 import { ethers } from "ethers";
 import { RootContext } from "../../context";
 import { contractAddress } from "../../consts/index";
@@ -34,6 +35,8 @@ const Navbar = () => {
           <button onClick={connect}>Connect Wallet</button>
         )}
       </div>
+      <Link to="/">Posts</Link>
+      <Link to="/signup">Sign up</Link>
     </div>
   );
 };
