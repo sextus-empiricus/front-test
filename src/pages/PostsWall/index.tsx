@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import moment from "moment";
+import { Link } from "react-router-dom";
 import { client, getPosts, getPostComments } from "../../queries";
 import { RootContext } from "../../context";
-import { Link } from "react-router-dom";
 import { Post } from "../../types";
 
 const PostsWall = () => {
