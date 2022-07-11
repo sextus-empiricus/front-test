@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import moment from "moment";
-import { client, getPosts } from "../../queries";
+import { client, getPosts, getPostComments } from "../../queries";
 import { RootContext } from "../../context";
 import { Link } from "react-router-dom";
-import { Post } from "../../types";
+import { Post, Comment } from "../../types";
 
 const PostsWall = () => {
   const [posts, setPosts] = useState<Post[] | null>(null);
@@ -38,7 +38,17 @@ const PostsWall = () => {
       setIsLoading(true);
       try {
         const response = await client.query(getPosts).toPromise();
-        setPosts(response.data.postAddeds);
+        const postsArray: Post[] = [...response.data.postAddeds];
+        postsArray.forEach((post, index) => {
+          client
+            .query(getPostComments, { postId: post.postAdded_id })
+            .toPromise()
+            .then(
+              (data) =>
+                (postsArray[index].comments = data.data.commentAddeds?.length)
+            );
+        });
+        setPosts(postsArray);
         setIsLoading(false);
       } catch (error) {
         console.error({ error });
@@ -96,8 +106,9 @@ const PostsWall = () => {
               <h4 style={{ fontWeight: "bold" }}>{element.postAdded_title}</h4>
             </Link>
             <p>{element.postAdded_content}</p>
+            <p>Comments: {element.comments}</p>
             <br />
-            username:
+            Username:
             <Link to={`profile/${element.postAdded_username}`}>
               <span style={{ fontWeight: "bold", margin: "4px" }}>
                 {element.postAdded_username}

@@ -1,13 +1,31 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import moment from "moment";
-import { client, getPost } from "../../queries";
-import { Post } from "../../types";
+import { client, getPost, getPostComments } from "../../queries";
+import { RootContext } from "../../context";
+import { Post, Comment } from "../../types";
 
 const PostPage = () => {
   const [post, setPost] = useState<Post>();
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentInput, setCommentInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const { postId } = useParams();
+  const { rootContract, selectedUser } = useContext(RootContext);
+
+  const submitHandler = async (e: any) => {
+    e.preventDefault();
+    try {
+      const tx = await rootContract.addComment(
+        commentInput,
+        postId,
+        selectedUser
+      );
+      await tx.wait();
+    } catch (error) {
+      console.error({ error });
+    }
+  };
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -15,6 +33,12 @@ const PostPage = () => {
       try {
         const response = await client.query(getPost, { postId }).toPromise();
         setPost(response.data.postAddeds[0]);
+        if (response.data.postAddeds.length) {
+          const responseComments = await client
+            .query(getPostComments, { postId })
+            .toPromise();
+          setComments(responseComments.data.commentAddeds);
+        }
         setIsLoading(false);
       } catch (error) {
         console.error({ error });
@@ -42,14 +66,47 @@ const PostPage = () => {
             >
               <h4 style={{ fontWeight: "bold" }}>{post.postAdded_title}</h4>
               <p>{post.postAdded_content}</p>
+              <div>Comments: {comments.length}</div>
               <br />
-              username:
+              Username:
               <span style={{ fontWeight: "bold", margin: "4px" }}>
                 {post.postAdded_username}
               </span>
               <span>
                 {moment.unix(Number(post.postAdded_date)).format("DD/MM/YYYY")}
               </span>
+              {rootContract && selectedUser && (
+                <form onSubmit={submitHandler} style={{ margin: "10px" }}>
+                  <label>
+                    Comment:
+                    <input
+                      name="comment"
+                      type="text"
+                      placeholder="Enter your comment"
+                      value={commentInput}
+                      onChange={(e) => setCommentInput(e.target.value)}
+                    />
+                  </label>
+                  <button>submit</button>
+                </form>
+              )}
+              {comments && (
+                <div>
+                  {comments.map((comment: Comment, index: number) => (
+                    <div key={index} style={{ fontSize: "12px" }}>
+                      <p>{comment.commentAdded_content}</p>
+                      <p style={{ fontWeight: "bold" }}>
+                        {comment.commentAdded_username}{" "}
+                        <span>
+                          {moment
+                            .unix(Number(comment.commentAdded_date))
+                            .format("DD/MM/YYYY")}
+                        </span>
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </>

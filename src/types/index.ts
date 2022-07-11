@@ -15,4 +15,13 @@ export interface Post {
   postAdded_title: string;
   postAdded_video: string;
   __typename: string;
+  comments?: number;
+}
+
+export interface Comment {
+  commentAdded_idOfPost: string;
+  commentAdded_content: string;
+  commentAdded_username: string;
+  commentAdded_authorId: string;
+  commentAdded_date: string;
 }

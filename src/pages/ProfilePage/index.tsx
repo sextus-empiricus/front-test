@@ -32,7 +32,7 @@ const ProfilePage = () => {
               id:
               <span style={{ fontWeight: "bold" }}>{profile.profileId}</span>
               <br />
-              username:
+              Username:
               <span style={{ fontWeight: "bold" }}>
                 {profile.memberData_username}
               </span>
@@ -57,7 +57,7 @@ const ProfilePage = () => {
                 </h4>
                 <p>{element.postAdded_content}</p>
                 <br />
-                username:
+                Username:
                 <span style={{ fontWeight: "bold", margin: "4px" }}>
                   {element.postAdded_username}
                 </span>

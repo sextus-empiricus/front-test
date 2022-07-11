@@ -132,7 +132,7 @@ const SignUpForm = () => {
               id:
               <span style={{ fontWeight: "bold" }}>{element.profileId}</span>
               <br />
-              username:
+              Username:
               <span style={{ fontWeight: "bold" }}>
                 {element.memberData_username}
               </span>
