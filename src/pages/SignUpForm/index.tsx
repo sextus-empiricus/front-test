@@ -3,13 +3,7 @@ import { encode } from "base-64";
 import Avatar from "boring-avatars";
 import { client, getUserProfiles, checkUsername } from "../../queries";
 import { RootContext } from "../../context";
-
-interface Profile {
-  memberData_profilePicture: string;
-  memberData_username: string;
-  profileId: string;
-  __typename: string;
-}
+import { Profile } from "../../types";
 
 const SignUpForm = () => {
   const [inputNameValue, setInputNameValue] = useState<string>("");
@@ -18,7 +12,7 @@ const SignUpForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { userAddress, rootContract, setSelectedUser } =
+  const { userAddress, rootContract, setSelectedUser, setSelectedUsername } =
     useContext(RootContext);
   const avatarRef = useRef();
 
@@ -123,7 +117,10 @@ const SignUpForm = () => {
               width: "400px",
               padding: "1em",
             }}
-            onClick={() => setSelectedUser(element.profileId)}
+            onClick={() => {
+              setSelectedUser(element.profileId);
+              setSelectedUsername(element.memberData_username);
+            }}
           >
             <p>
               {element.memberData_profilePicture.includes("base64") && (

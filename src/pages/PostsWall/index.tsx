@@ -2,16 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import moment from "moment";
 import { client, getPosts } from "../../queries";
 import { RootContext } from "../../context";
-
-interface Post {
-  postAdded_authorId: string;
-  postAdded_content: string;
-  postAdded_date: string;
-  postAdded_picture: string;
-  postAdded_title: string;
-  postAdded_video: string;
-  __typename: string;
-}
+import { Link } from "react-router-dom";
+import { Post } from "../../types";
 
 const PostsWall = () => {
   const [posts, setPosts] = useState<Post[] | null>(null);
@@ -100,13 +92,17 @@ const PostsWall = () => {
               margin: "4px",
             }}
           >
-            <h4 style={{ fontWeight: "bold" }}>{element.postAdded_title}</h4>
+            <Link to={`post/${element.postAdded_id}`}>
+              <h4 style={{ fontWeight: "bold" }}>{element.postAdded_title}</h4>
+            </Link>
             <p>{element.postAdded_content}</p>
             <br />
             username:
-            <span style={{ fontWeight: "bold", margin: "4px" }}>
-              {element.postAdded_authorId}
-            </span>
+            <Link to={`profile/${element.postAdded_username}`}>
+              <span style={{ fontWeight: "bold", margin: "4px" }}>
+                {element.postAdded_username}
+              </span>
+            </Link>
             <span>
               {moment.unix(Number(element.postAdded_date)).format("DD/MM/YYYY")}
             </span>
