@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import moment from "moment";
 import { client, getPost, getPostComments } from "../../queries";
 import { RootContext } from "../../context";
@@ -69,9 +69,11 @@ const PostPage = () => {
               <div>Comments: {comments.length}</div>
               <br />
               Username:
-              <span style={{ fontWeight: "bold", margin: "4px" }}>
-                {post.postAdded_username}
-              </span>
+              <Link to={`../profile/${post.postAdded_username}`}>
+                <span style={{ fontWeight: "bold", margin: "4px" }}>
+                  {post.postAdded_username}
+                </span>
+              </Link>
               <span>
                 {moment.unix(Number(post.postAdded_date)).format("DD/MM/YYYY")}
               </span>
@@ -96,7 +98,11 @@ const PostPage = () => {
                     <div key={index} style={{ fontSize: "12px" }}>
                       <p>{comment.commentAdded_content}</p>
                       <p style={{ fontWeight: "bold" }}>
-                        {comment.commentAdded_username}{" "}
+                        <Link
+                          to={`../profile/${comment.commentAdded_username}`}
+                        >
+                          {comment.commentAdded_username}{" "}
+                        </Link>
                         <span>
                           {moment
                             .unix(Number(comment.commentAdded_date))

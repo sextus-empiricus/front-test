@@ -3,7 +3,7 @@ import moment from "moment";
 import { client, getPosts, getPostComments } from "../../queries";
 import { RootContext } from "../../context";
 import { Link } from "react-router-dom";
-import { Post, Comment } from "../../types";
+import { Post } from "../../types";
 
 const PostsWall = () => {
   const [posts, setPosts] = useState<Post[] | null>(null);
