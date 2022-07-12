@@ -6,15 +6,18 @@ import { RootContext } from "../../context";
 import { Post } from "../../types";
 
 const PostsWall = () => {
+  const [fetchedPosts, setFetchedPosts] = useState<Post[] | null>(null);
   const [posts, setPosts] = useState<Post[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [filterPosts, setFilterPosts] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const { selectedUser, rootContract } = useContext(RootContext);
+  const { selectedUser, rootContract, profile } = useContext(RootContext);
 
   const submitHandler = async (e: any) => {
     e.preventDefault();
+    console.log(profile);
     setErrorMessage("");
     try {
       const tx = await rootContract.addPost(
@@ -29,7 +32,6 @@ const PostsWall = () => {
       await tx.wait();
     } catch (error) {
       console.error({ error });
-      setErrorMessage(JSON.stringify(error));
     }
   };
 
@@ -48,7 +50,7 @@ const PostsWall = () => {
                 (postsArray[index].comments = data.data.commentAddeds?.length)
             );
         });
-        setPosts(postsArray);
+        setFetchedPosts(postsArray);
         setIsLoading(false);
       } catch (error) {
         console.error({ error });
@@ -58,36 +60,65 @@ const PostsWall = () => {
     fetchPosts();
   }, []);
 
+  useEffect(() => {
+    if (!filterPosts) {
+      setPosts(fetchedPosts);
+    } else {
+      const filteredPosts = fetchedPosts?.filter((post: Post) => {
+        const followsArray = profile?.follows?.join(" ");
+        if (followsArray?.includes(post.postAdded_authorId)) {
+          return true;
+        }
+        return false;
+      });
+
+      console.log(filteredPosts);
+      if (filteredPosts) {
+        setPosts([...filteredPosts]);
+      } else {
+        setPosts([]);
+      }
+    }
+  }, [fetchedPosts, filterPosts, profile?.follows]);
+
   return (
     <div style={{ width: "50vw", margin: "auto" }}>
       {selectedUser && (
-        <form
-          onSubmit={submitHandler}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            margin: "4px",
-            gap: "4px",
-            width: "400px",
-          }}
-        >
-          {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-          <label>Title:</label>
+        <div>
+          <label>Show Only Followed Authors Posts</label>
           <input
-            name="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            type="checkbox"
+            onChange={() => setFilterPosts(!filterPosts)}
+            checked={filterPosts}
           />
-          <label>Content:</label>
-          <textarea
-            name="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+          <form
+            onSubmit={submitHandler}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              margin: "4px",
+              gap: "4px",
+              width: "400px",
+            }}
+          >
+            {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+            <label>Title:</label>
+            <input
+              name="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <label>Content:</label>
+            <textarea
+              name="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
 
-          <button>submit</button>
-        </form>
+            <button>submit</button>
+          </form>
+        </div>
       )}
       {isLoading ? (
         <div>Loading</div>

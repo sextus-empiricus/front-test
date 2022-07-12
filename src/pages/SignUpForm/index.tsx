@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { encode } from "base-64";
 import Avatar from "boring-avatars";
-import { client, getUserProfiles, checkUsername } from "../../queries";
+import {
+  client,
+  getUserProfiles,
+  getFollowed,
+  checkUsername,
+} from "../../queries";
 import { RootContext } from "../../context";
 import { Profile } from "../../types";
 
@@ -12,8 +17,13 @@ const SignUpForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { userAddress, rootContract, setSelectedUser, setSelectedUsername } =
-    useContext(RootContext);
+  const {
+    userAddress,
+    rootContract,
+    setSelectedUser,
+    setSelectedUsername,
+    setProfile,
+  } = useContext(RootContext);
   const avatarRef = useRef();
 
   const submitHandler = (e: any) => {
@@ -50,7 +60,25 @@ const SignUpForm = () => {
         const response = await client
           .query(getUserProfiles, { address: userAddress })
           .toPromise();
-        setProfiles(response.data.profileNFTMinteds);
+        const addressProfiles = response.data.profileNFTMinteds;
+
+        addressProfiles.forEach((profile: Profile, index: number) => {
+          client
+            .query(getFollowed, {
+              authorId: profile.profileId,
+            })
+            .toPromise()
+            .then(
+              (data) =>
+                (addressProfiles[index].follows = [
+                  data.data.profileFolloweds.map(
+                    (followed: any) => followed.followed
+                  ),
+                ])
+            );
+        });
+
+        setProfiles(addressProfiles);
         setIsLoading(false);
       } catch (error) {
         console.error({ error });
@@ -120,6 +148,7 @@ const SignUpForm = () => {
             onClick={() => {
               setSelectedUser(element.profileId);
               setSelectedUsername(element.memberData_username);
+              setProfile(element);
             }}
           >
             <p>
