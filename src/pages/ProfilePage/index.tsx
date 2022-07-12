@@ -1,12 +1,27 @@
-import { useParams } from "react-router-dom";
+import { useContext } from "react";
+import { Link, useParams } from "react-router-dom";
 import moment from "moment";
 import { useFetchProfile } from "../../hooks/useFetchProfile";
 import { Post } from "../../types";
+import { RootContext } from "../../context";
 
 const ProfilePage = () => {
   const { username } = useParams();
   const { profile, posts, followers, follows, isLoading } =
     useFetchProfile(username);
+  const { selectedUser, rootContract } = useContext(RootContext);
+
+  const followUser = async () => {
+    try {
+      const tx = await rootContract.followProfile(
+        Number(selectedUser),
+        Number(profile?.profileId)
+      );
+      await tx.wait();
+    } catch (error) {
+      console.error({ error });
+    }
+  };
 
   return (
     <div>
@@ -39,6 +54,18 @@ const ProfilePage = () => {
               <div>Posts: {posts?.length}</div>
               <div>Followers: {followers?.length}</div>
               <div>Follows: {follows?.length}</div>
+              {selectedUser &&
+                selectedUser !== profile.profileId &&
+                rootContract && (
+                  <button
+                    onClick={followUser}
+                    disabled={followers.includes(selectedUser)}
+                  >
+                    {followers.includes(selectedUser)
+                      ? "You Follow this Profile"
+                      : "Follow"}
+                  </button>
+                )}
             </div>
           </div>
           {posts &&
@@ -52,15 +79,20 @@ const ProfilePage = () => {
                   margin: "4px",
                 }}
               >
-                <h4 style={{ fontWeight: "bold" }}>
-                  {element.postAdded_title}
-                </h4>
+                <Link to={`../post/${element.postAdded_id}`}>
+                  <h4 style={{ fontWeight: "bold" }}>
+                    {element.postAdded_title}
+                  </h4>
+                </Link>
                 <p>{element.postAdded_content}</p>
+                <p>Comments: {element.comments}</p>
                 <br />
                 Username:
-                <span style={{ fontWeight: "bold", margin: "4px" }}>
-                  {element.postAdded_username}
-                </span>
+                <Link to={`../profile/${element.postAdded_username}`}>
+                  <span style={{ fontWeight: "bold", margin: "4px" }}>
+                    {element.postAdded_username}
+                  </span>
+                </Link>
                 <span>
                   {moment
                     .unix(Number(element.postAdded_date))

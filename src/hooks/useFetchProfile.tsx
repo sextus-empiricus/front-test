@@ -3,6 +3,7 @@ import {
   client,
   checkUsername,
   getAuthorPosts,
+  getPostComments,
   getFollowers,
   getFollowed,
 } from "../queries";
@@ -29,7 +30,17 @@ const useFetchProfile = (username = "") => {
               authorId: response.data.profileNFTMinteds[0].profileId,
             })
             .toPromise();
-          setPosts(responsePosts.data.postAddeds);
+          const postsArray: Post[] = [...responsePosts.data.postAddeds];
+          postsArray.forEach((post, index) => {
+            client
+              .query(getPostComments, { postId: post.postAdded_id })
+              .toPromise()
+              .then(
+                (data) =>
+                  (postsArray[index].comments = data.data.commentAddeds?.length)
+              );
+          });
+          setPosts(postsArray);
 
           const responseFollowers = await client
             .query(getFollowers, {
