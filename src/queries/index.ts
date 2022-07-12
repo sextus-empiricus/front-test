@@ -27,7 +27,6 @@ export const checkUsername = `query ProfileNFTMinted($username: String! ) {
   profileNFTMinteds (where: { memberData_username: $username }) {
     profileId
     memberData_username
-    memberData_username
     memberData_profilePicture
   }
 }`;

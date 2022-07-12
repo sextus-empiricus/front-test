@@ -3,6 +3,7 @@ export interface Profile {
   memberData_username: string;
   profileId: string;
   __typename: string;
+  follows?: string[];
 }
 
 export interface Post {
