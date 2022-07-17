@@ -82,30 +82,28 @@ const PostsWall = () => {
   }, [fetchedPosts, filterPosts, profile?.follows]);
 
   return (
-    <div style={{ width: "50vw", margin: "auto" }}>
+    <div className="w-full">
       {selectedUser && (
         <div>
-          <label>Show Only Followed Authors Posts</label>
-          <input
-            type="checkbox"
-            onChange={() => setFilterPosts(!filterPosts)}
-            checked={filterPosts}
-          />
+          <div className="w-1/2 m-auto">
+            <h4 className="font-bold">Show Only Followed Authors Posts</h4>
+            <input
+              type="checkbox"
+              onChange={() => setFilterPosts(!filterPosts)}
+              checked={filterPosts}
+            />
+          </div>
           <form
             onSubmit={submitHandler}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              margin: "4px",
-              gap: "4px",
-              width: "400px",
-            }}
+            className="flex flex-col m-auto mb-4 g-4 w-1/3 border-solid border-black border-2 rounded-md p-4"
           >
-            {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+            <h4 className="font-bold m-auto">Add new post: </h4>
+            {errorMessage && <p className="text-red-400">{errorMessage}</p>}
             <label>Title:</label>
             <input
               name="title"
               type="text"
+              className="border-solid border-2 rounded-md m-2"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
@@ -113,10 +111,13 @@ const PostsWall = () => {
             <textarea
               name="content"
               value={content}
+              className="border-solid border-2 rounded-md m-2"
               onChange={(e) => setContent(e.target.value)}
             />
 
-            <button>submit</button>
+            <button className="bg-lime-400 m-2 p-1 border-solid border-black border-2 rounded-md">
+              submit
+            </button>
           </form>
         </div>
       )}
@@ -126,22 +127,17 @@ const PostsWall = () => {
         posts.map((element: Post, index: number) => (
           <div
             key={index}
-            style={{
-              border: "solid black 2px",
-              width: "400px",
-              padding: "4px",
-              margin: "4px",
-            }}
+            className="border-solid border-black border-2 w-1/3 p-4 m-auto mb-4 rounded-md"
           >
             <Link to={`post/${element.postAdded_id}`}>
-              <h4 style={{ fontWeight: "bold" }}>{element.postAdded_title}</h4>
+              <h4 className="font-bold">{element.postAdded_title}</h4>
             </Link>
             <p>{element.postAdded_content}</p>
             <p>Comments: {element.comments}</p>
             <br />
             Username:
             <Link to={`profile/${element.postAdded_username}`}>
-              <span style={{ fontWeight: "bold", margin: "4px" }}>
+              <span className="font-bold m-4">
                 {element.postAdded_username}
               </span>
             </Link>

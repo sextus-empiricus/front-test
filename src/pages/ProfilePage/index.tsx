@@ -29,14 +29,7 @@ const ProfilePage = () => {
         <div>Loading</div>
       ) : profile ? (
         <>
-          <div
-            style={{
-              border: "solid 2px black",
-              margin: "10px 0",
-              width: "400px",
-              padding: "1em",
-            }}
-          >
+          <div className="border-solid border-2 border-black p-4 m-auto w-1/3 rounded-md">
             <div>
               {profile.memberData_profilePicture.includes("base64") && (
                 <img
@@ -45,12 +38,10 @@ const ProfilePage = () => {
                 />
               )}
               id:
-              <span style={{ fontWeight: "bold" }}>{profile.profileId}</span>
+              <span className="font-bold">{profile.profileId}</span>
               <br />
               Username:
-              <span style={{ fontWeight: "bold" }}>
-                {profile.memberData_username}
-              </span>
+              <span className="font-bold">{profile.memberData_username}</span>
               <div>Posts: {posts?.length}</div>
               <div>Followers: {followers?.length}</div>
               <div>Follows: {follows?.length}</div>
@@ -72,24 +63,17 @@ const ProfilePage = () => {
             posts.map((element: Post, index: number) => (
               <div
                 key={index}
-                style={{
-                  border: "solid black 2px",
-                  width: "400px",
-                  padding: "4px",
-                  margin: "4px",
-                }}
+                className="border-solid border-2 border-black p-4 m-auto mt-4 mb-4 w-1/3 rounded-md"
               >
                 <Link to={`../post/${element.postAdded_id}`}>
-                  <h4 style={{ fontWeight: "bold" }}>
-                    {element.postAdded_title}
-                  </h4>
+                  <h4 className="font-bold">{element.postAdded_title}</h4>
                 </Link>
                 <p>{element.postAdded_content}</p>
                 <p>Comments: {element.comments}</p>
                 <br />
                 Username:
                 <Link to={`../profile/${element.postAdded_username}`}>
-                  <span style={{ fontWeight: "bold", margin: "4px" }}>
+                  <span className="font-bold m-4">
                     {element.postAdded_username}
                   </span>
                 </Link>

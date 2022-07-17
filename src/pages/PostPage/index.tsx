@@ -56,48 +56,45 @@ const PostPage = () => {
       ) : post ? (
         <>
           {post && (
-            <div
-              style={{
-                border: "solid black 2px",
-                width: "400px",
-                padding: "4px",
-                margin: "4px",
-              }}
-            >
-              <h4 style={{ fontWeight: "bold" }}>{post.postAdded_title}</h4>
+            <div className="border-solid border-2 border-black w-1/3 p-4 m-auto mb-4 mt-4 rounded-md">
+              <h4 className="font-bold">{post.postAdded_title}</h4>
               <p>{post.postAdded_content}</p>
               <div>Comments: {comments.length}</div>
               <br />
               Username:
               <Link to={`../profile/${post.postAdded_username}`}>
-                <span style={{ fontWeight: "bold", margin: "4px" }}>
-                  {post.postAdded_username}
-                </span>
+                <span className="font-bold m-4">{post.postAdded_username}</span>
               </Link>
               <span>
                 {moment.unix(Number(post.postAdded_date)).format("DD/MM/YYYY")}
               </span>
               {rootContract && selectedUser && (
-                <form onSubmit={submitHandler} style={{ margin: "10px" }}>
+                <form
+                  onSubmit={submitHandler}
+                  className="flex m-auto mt-4 mb-4 g-4 w-3/4 border-solid border-black border-2 rounded-md p-4"
+                >
                   <label>
                     Comment:
                     <input
                       name="comment"
                       type="text"
                       placeholder="Enter your comment"
+                      className="border-solid border-2 rounded-md m-2"
                       value={commentInput}
                       onChange={(e) => setCommentInput(e.target.value)}
                     />
                   </label>
-                  <button>submit</button>
+                  <button className="bg-lime-400 m-2 p-1 border-solid border-black border-2 rounded-md">
+                    Add
+                  </button>
                 </form>
               )}
               {comments && (
                 <div>
                   {comments.map((comment: Comment, index: number) => (
-                    <div key={index} style={{ fontSize: "12px" }}>
+                    <div key={index} className="text-xs">
                       <p>{comment.commentAdded_content}</p>
-                      <p style={{ fontWeight: "bold" }}>
+                      <p className="font-bold">
                         <Link
                           to={`../profile/${comment.commentAdded_username}`}
                         >
