@@ -109,28 +109,37 @@ const SignUpForm = () => {
   }
 
   return (
-    <div>
-      {/* @ts-ignore */}
-      <div ref={avatarRef}>
-        <Avatar
-          size={40}
-          name={inputNameValue}
-          variant="beam"
-          colors={["#ffe30b", "#083e48", "#ffb53d", "#98f421", "#ff0000"]}
-        />
-      </div>
-      <form onSubmit={submitHandler}>
-        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-        <label>
-          Username:
+    <div className="pt-28">
+      <form
+        onSubmit={submitHandler}
+        className="border-solid border-2 border-black p-4 m-auto mb-4 w-1/3 rounded-md"
+      >
+        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+        {/* @ts-ignore */}
+        <div ref={avatarRef} className="m-auto mb-4 mt-4 w-1/3 flex">
+          <Avatar
+            size={40}
+            name={inputNameValue}
+            variant="beam"
+            colors={["#ffe30b", "#083e48", "#ffb53d", "#98f421", "#ff0000"]}
+          />
+          <p className="ml-4">Avatar for: {inputNameValue}</p>
+        </div>
+        <div className="w-1/2 m-auto">
+          <label htmlFor="username" className="ml-2">
+            Username:
+          </label>
           <input
             name="username"
             type="text"
             value={inputNameValue}
+            className="border-solid border-2 rounded-md m-2"
             onChange={(e) => setInputNameValue(e.target.value)}
           />
-        </label>
-        <button>submit</button>
+          <button className="bg-lime-400 p-1 border-solid border-black border-2 rounded-md">
+            CREATE
+          </button>
+        </div>
       </form>
       {isLoading ? (
         <div>Loading</div>
@@ -138,13 +147,7 @@ const SignUpForm = () => {
         profiles.map((element: Profile, index: number) => (
           <div
             key={index}
-            style={{
-              border: "solid 2px black",
-              cursor: "pointer",
-              margin: "10px 0",
-              width: "400px",
-              padding: "1em",
-            }}
+            className="border-solid border-2 border-black p-4 m-auto w-1/3 rounded-md cursor-pointer"
             onClick={() => {
               setSelectedUser(element.profileId);
               setSelectedUsername(element.memberData_username);
@@ -159,12 +162,10 @@ const SignUpForm = () => {
                 />
               )}
               id:
-              <span style={{ fontWeight: "bold" }}>{element.profileId}</span>
+              <span className="font-bold">{element.profileId}</span>
               <br />
               Username:
-              <span style={{ fontWeight: "bold" }}>
-                {element.memberData_username}
-              </span>
+              <span className="font-bold">{element.memberData_username}</span>
             </p>
           </div>
         ))
