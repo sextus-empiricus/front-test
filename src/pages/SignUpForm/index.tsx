@@ -109,7 +109,7 @@ const SignUpForm = () => {
   }
 
   return (
-    <div>
+    <div className="pt-28">
       <form
         onSubmit={submitHandler}
         className="border-solid border-2 border-black p-4 m-auto mb-4 w-1/3 rounded-md"

@@ -23,7 +23,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 dark:bg-gray-900 mb-10">
+    <nav className="bg-white border-gray-200 w-full px-2 sm:px-4 py-2.5 dark:bg-gray-900 fixed">
       <div className="container flex flex-wrap justify-between items-center mx-auto">
         <Link to="/">
           <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">

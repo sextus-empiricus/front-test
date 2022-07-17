@@ -50,13 +50,13 @@ const PostPage = () => {
   }, [postId]);
 
   return (
-    <div>
+    <div className="pt-28">
       {isLoading ? (
         <div>Loading</div>
       ) : post ? (
         <>
           {post && (
-            <div className="border-solid border-2 border-black w-1/3 p-4 m-auto mb-4 mt-4 rounded-md">
+            <div className="border-solid border-2 border-black w-1/3 p-4 m-auto mb-4 rounded-md">
               <h4 className="font-bold">{post.postAdded_title}</h4>
               <p>{post.postAdded_content}</p>
               <div>Comments: {comments.length}</div>

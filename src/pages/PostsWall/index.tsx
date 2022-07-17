@@ -82,7 +82,7 @@ const PostsWall = () => {
   }, [fetchedPosts, filterPosts, profile?.follows]);
 
   return (
-    <div className="w-full">
+    <div className="w-full pt-28">
       {selectedUser && (
         <div>
           <div className="w-1/2 m-auto">

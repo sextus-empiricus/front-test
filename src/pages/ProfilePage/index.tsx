@@ -24,7 +24,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div>
+    <div className="pt-28">
       {isLoading ? (
         <div>Loading</div>
       ) : profile ? (
