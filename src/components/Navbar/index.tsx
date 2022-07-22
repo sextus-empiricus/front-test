@@ -11,15 +11,30 @@ const Navbar = () => {
 
   const connect = async () => {
     /* @ts-ignore */
-    const accounts = await window.ethereum.request({
-      method: "eth_requestAccounts",
-    });
-    setUserAddress(accounts[0]);
+    if (window.tronWeb) {
+      /* @ts-ignore */
+      setUserAddress(window.tronWeb.defaultAddress.base58);
+      const contractAddress = "THfS4KgpsJm86DgQt47pf3t3BRhTogzHs4";
+      /* @ts-ignore */
+      let contract = await window.tronWeb.contract().at(contractAddress);
+      console.log(contract);
+    }
+    //setRootContract(contract);
     /* @ts-ignore */
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(contractAddress, RootContract, signer);
-    setRootContract(contract);
+    // if (window.tronWeb) {
+    //   /* @ts-ignore */
+    //   setUserAddress(window.tronWeb.defaultAddress.base58);
+    // }
+    // /* @ts-ignore */
+    // const accounts = await window.ethereum.request({
+    //   method: "eth_requestAccounts",
+    // });
+    // setUserAddress(accounts[0]);
+    // /* @ts-ignore */
+    // const provider = new ethers.providers.Web3Provider(window.ethereum);
+    // const signer = provider.getSigner();
+    // const contract = new ethers.Contract(contractAddress, RootContract, signer);
+    // setRootContract(contract);
   };
 
   return (
@@ -90,7 +105,7 @@ const Navbar = () => {
               <button className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">{`Signed in ${userAddress.slice(
                 0,
                 4
-              )}...${userAddress.slice(38, 42)}`}</button>
+              )}...${userAddress.slice(30, 34)}`}</button>
             ) : (
               <button
                 className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
@@ -104,6 +119,6 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
+};;;;
 
 export { Navbar };
